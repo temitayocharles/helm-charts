@@ -1,5 +1,16 @@
+# -------------------------------
+# Global / chart-level
+# -------------------------------
 installCRDs: true
 
+replicaCount: 2   # <-- change this to force visible ArgoCD syncs
+
+image:
+  pullPolicy: IfNotPresent
+
+# -------------------------------
+# Service Accounts & RBAC
+# -------------------------------
 serviceAccount:
   create: true
   name: external-secrets
@@ -7,16 +18,115 @@ serviceAccount:
 rbac:
   create: true
 
-webhook:
+# -------------------------------
+# Controller behavior
+# -------------------------------
+leaderElection:
   enabled: true
 
-certController:
-  enabled: true
+log:
+  level: info        # try: debug
+  timeEncoding: rfc3339
 
+metrics:
+  enabled: true
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 8080
+
+# -------------------------------
+# Resources (very visible diffs)
+# -------------------------------
 resources:
   requests:
-    cpu: 120m
-    memory: 228Mi
+    cpu: 100m
+    memory: 128Mi
   limits:
     cpu: 300m
     memory: 256Mi
+
+# -------------------------------
+# Pod scheduling (good for staging tests)
+# -------------------------------
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations:
+  staging.gitops/managed-by: argocd
+  staging.gitops/environment: staging
+
+# -------------------------------
+# Webhook (critical component)
+# -------------------------------
+webhook:
+  enabled: true
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+
+# -------------------------------
+# Certificate Controller
+# -------------------------------
+certController:
+  enabled: true
+  replicaCount: 1
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+
+# -------------------------------
+# Security context (enterprise-safe defaults)
+# -------------------------------
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  readOnlyRootFilesystem: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -------------------------------
+# Health probes (safe to tune)
+# -------------------------------
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# -------------------------------
+# Feature flags you can experiment with
+# -------------------------------
+featureGates:
+  PushSecret: false
+  ClusterSecretStore: true
+
+# -------------------------------
+# Pod disruption (visible diff)
+# -------------------------------
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
