@@ -1,0 +1,22 @@
+installCRDs: true
+
+serviceAccount:
+  create: true
+  name: external-secrets
+
+rbac:
+  create: true
+
+webhook:
+  enabled: true
+
+certController:
+  enabled: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
