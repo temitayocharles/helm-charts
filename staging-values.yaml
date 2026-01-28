@@ -147,7 +147,7 @@ livenessProbe:
 # Pod disruption budget
 podDisruptionBudget:
   enabled: true
-  minAvailable: 1
+  minAvailable: 2
 
 # Strategy
 strategy:
@@ -275,7 +275,7 @@ webhook:
 
   podDisruptionBudget:
     enabled: true
-    minAvailable: 1
+    minAvailable: 2
 
   strategy:
     type: RollingUpdate
@@ -293,7 +293,7 @@ webhook:
 certController:
   create: true
   requeueInterval: "5m"
-  replicaCount: 2
+  replicaCount: 3
 
   log:
     level: info
@@ -359,7 +359,7 @@ certController:
 
   podDisruptionBudget:
     enabled: true
-    minAvailable: 1
+    minAvailable: 2
 
   strategy:
     type: RollingUpdate
