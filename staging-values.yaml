@@ -16,7 +16,7 @@ crds:
     enabled: false
 
 # Controller configuration
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: ghcr.io/external-secrets/external-secrets
