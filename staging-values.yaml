@@ -1,132 +1,378 @@
-# -------------------------------
-# Global / chart-level
-# -------------------------------
+# external-secrets/dev-values.yaml
+# Development environment configuration for External Secrets Operator
+
+# Install CRDs automatically during Helm install
 installCRDs: true
 
-replicaCount: 2   # <-- change this to force visible ArgoCD syncs
+crds:
+  createClusterExternalSecret: true
+  createClusterSecretStore: true
+  createSecretStore: true
+  createClusterGenerator: true
+  createClusterPushSecret: true
+  createPushSecret: true
+  annotations: {}
+  conversion:
+    enabled: false
+
+# Controller configuration
+replicaCount: 2
 
 image:
+  repository: ghcr.io/external-secrets/external-secrets
   pullPolicy: IfNotPresent
+  tag: "" # Use chart appVersion
 
-# -------------------------------
-# Service Accounts & RBAC
-# -------------------------------
+# Global configuration
+global:
+  nodeSelector: {}
+  tolerations: []
+  topologySpreadConstraints: []
+  affinity: {}
+  podLabels:
+    app: external-secrets
+    environment: dev
+  podAnnotations: {}
+
+# Enable leader election for HA
+leaderElect: true
+
+# Controller class for filtering
+controllerClass: ""
+
+# Extended metric labels
+extendedMetricLabels: true
+
+# Namespace scope - leave empty for cluster-wide
+scopedNamespace: "external-secrets"
+scopedRBAC: true
+
+# Process all resource types
+processClusterExternalSecret: true
+processClusterPushSecret: true
+processClusterStore: true
+processSecretStore: true
+processClusterGenerator: true
+processPushSecret: true
+
+# Enable support for generic targets (ConfigMaps, Custom Resources)
+genericTargets:
+  enabled: false
+  resources: []
+
+# Concurrent reconciles
+concurrent: 1
+
+# Logging configuration
+log:
+  level: info
+  timeEncoding: epoch
+
+# Service configuration
+service:
+  ipFamilyPolicy: ""
+  ipFamilies: []
+
+# Service Account
 serviceAccount:
   create: true
-  name: external-secrets
+  automount: true
+  annotations: {}
+  extraLabels:
+    environment: dev
+  name: ""
 
+# RBAC
 rbac:
   create: true
 
-# -------------------------------
-# Controller behavior
-# -------------------------------
-leaderElection:
-  enabled: true
+servicebindings:
+  create: true
+  aggregateToView: true
+  aggregateToEdit: true
 
-log:
-  level: info        # try: debug
-  timeEncoding: rfc3339
-
-metrics:
-  enabled: true
-  service:
-    enabled: true
-    type: ClusterIP
-    port: 8080
-
-# -------------------------------
-# Resources (very visible diffs)
-# -------------------------------
+# Resource limits
 resources:
   requests:
-    cpu: 100m
+    cpu: 50m
     memory: 128Mi
   limits:
-    cpu: 300m
-    memory: 256Mi
+    cpu: 200m
+    memory: 512Mi
 
-# -------------------------------
-# Pod scheduling (good for staging tests)
-# -------------------------------
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-podAnnotations:
-  staging.gitops/managed-by: argocd
-  staging.gitops/environment: staging
-
-# -------------------------------
-# Webhook (critical component)
-# -------------------------------
-webhook:
+# Prometheus monitoring
+serviceMonitor:
   enabled: true
-  replicaCount: 2
+  renderMode: skipIfMissing
+  namespace: ""
+  additionalLabels:
+    release: prometheus
+  interval: 30s
+  scrapeTimeout: 25s
+  honorLabels: false
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 150m
-      memory: 128Mi
+metrics:
+  listen:
+    port: 8080
+  secure:
+    enabled: false
+  service:
+    enabled: true
+    port: 8080
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
 
-# -------------------------------
-# Certificate Controller
-# -------------------------------
-certController:
-  enabled: true
-  replicaCount: 1
+# Grafana Dashboard
+grafanaDashboard:
+  enabled: false
+  sidecarLabel: "grafana_dashboard"
+  sidecarLabelValue: "1"
+  annotations: {}
+  extraLabels: {}
 
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 150m
-      memory: 128Mi
-
-# -------------------------------
-# Security context (enterprise-safe defaults)
-# -------------------------------
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
-  fsGroup: 1000
-  readOnlyRootFilesystem: true
-
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-
-# -------------------------------
-# Health probes (safe to tune)
-# -------------------------------
+# Liveness probe
 livenessProbe:
   enabled: true
-  initialDelaySeconds: 15
-  periodSeconds: 20
+  spec:
+    httpGet:
+      port: 8082
+      path: /healthz
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
 
-readinessProbe:
-  enabled: true
-  initialDelaySeconds: 5
-  periodSeconds: 10
-
-# -------------------------------
-# Feature flags you can experiment with
-# -------------------------------
-featureGates:
-  PushSecret: false
-  ClusterSecretStore: true
-
-# -------------------------------
-# Pod disruption (visible diff)
-# -------------------------------
+# Pod disruption budget
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
+
+# Strategy
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+
+# Security context
+podSecurityContext:
+  enabled: true
+
+securityContext:
+  enabled: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Node configuration
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
+hostNetwork: false
+
+# Deployment annotations
+deploymentAnnotations:
+  environment: dev
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+
+podLabels:
+  app.kubernetes.io/name: external-secrets
+  app.kubernetes.io/instance: external-secrets
+  environment: dev
+
+# Webhook configuration
+webhook:
+  create: true
+  certCheckInterval: "5m"
+  lookaheadInterval: ""
+  replicaCount: 2
+
+  log:
+    level: info
+    timeEncoding: epoch
+
+  revisionHistoryLimit: 10
+  certDir: /tmp/certs
+  failurePolicy: Fail
+  hostNetwork: false
+
+  image:
+    repository: ghcr.io/external-secrets/external-secrets
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  port: 10250
+
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    extraLabels:
+      environment: dev
+    name: ""
+
+  # Cert-manager integration
+  certManager:
+    enabled: true
+    addInjectorAnnotations: true
+    cert:
+      create: true
+      issuerRef:
+        group: cert-manager.io
+        kind: "Issuer"
+        name: "external-secrets-selfsigned"
+      duration: "8760h0m0s"
+      renewBefore: ""
+      privateKey: {}
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  metrics:
+    listen:
+      port: 8080
+    service:
+      enabled: true
+      port: 8080
+      annotations:
+        prometheus.io/scrape: "true"
+
+  readinessProbe:
+    address: ""
+    port: 8081
+
+  podSecurityContext:
+    enabled: true
+
+  securityContext:
+    enabled: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  service:
+    enabled: true
+    annotations: {}
+    labels: {}
+    type: ClusterIP
+
+# Certificate Controller configuration
+certController:
+  create: true
+  requeueInterval: "5m"
+  replicaCount: 2
+
+  log:
+    level: info
+    timeEncoding: epoch
+
+  revisionHistoryLimit: 10
+
+  image:
+    repository: ghcr.io/external-secrets/external-secrets
+    pullPolicy: IfNotPresent
+    tag: ""
+
+  rbac:
+    create: true
+
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    extraLabels:
+      environment: dev
+    name: ""
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  metrics:
+    listen:
+      port: 8080
+    service:
+      enabled: true
+      port: 8080
+      annotations:
+        prometheus.io/scrape: "true"
+
+  readinessProbe:
+    address: ""
+    port: 8081
+
+  startupProbe:
+    enabled: false
+    useReadinessProbePort: true
+
+  podSecurityContext:
+    enabled: true
+
+  securityContext:
+    enabled: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  priorityClassName: ""
+  hostNetwork: false
+
+# Bitwarden SDK Server (optional)
+bitwarden-sdk-server:
+  enabled: false
