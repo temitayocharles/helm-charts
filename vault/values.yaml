@@ -1,0 +1,26 @@
+server:
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: local-path
+  
+  auditStorage:
+    enabled: true
+    size: 5Gi
+    storageClass: local-path
+  
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+      setNodeId: true
+  
+  standalone:
+    enabled: false
+
+injector:
+  enabled: true
+
+ui:
+  enabled: true

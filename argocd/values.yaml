@@ -1,0 +1,24 @@
+global:
+  domain: argocd.local
+
+server:
+  service:
+    type: ClusterIP
+    port: 80
+  
+  extraArgs:
+    - --insecure
+
+repoServer:
+  autoscaling:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
