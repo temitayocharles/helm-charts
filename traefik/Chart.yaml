@@ -1,6 +1,0 @@
-apiVersion: v2
-name: traefik
-description: Traefik Ingress Controller override values
-type: application
-version: 1.0.0
-appVersion: "2.10"
