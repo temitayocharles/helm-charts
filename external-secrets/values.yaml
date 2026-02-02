@@ -1,7 +1,7 @@
 installCRDs: true
 
 webhook:
-  port: 8080
+  create: false
 
 secretStores:
   enabled: false
