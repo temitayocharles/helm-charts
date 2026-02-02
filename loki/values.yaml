@@ -1,2 +1,17 @@
-# Loki override values - using defaults from helm chart
-# Customize as needed
+loki:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: local-path
+
+promtail:
+  enabled: true
+  config:
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClassName: local-path
