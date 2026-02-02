@@ -1,7 +1,10 @@
-installCRDs: true
+installCRDs: false
 
 webhook:
   create: false
 
 secretStores:
   enabled: false
+
+# Disable beta API resources that may not be installed
+# We're using v1 and v1alpha1 which are stable
