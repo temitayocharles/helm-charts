@@ -1,4 +1,4 @@
-installCRDs: true
+installCRDs: false
 
 webhook:
   create: false
@@ -8,3 +8,20 @@ certController:
 
 secretStores:
   enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+certController:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
