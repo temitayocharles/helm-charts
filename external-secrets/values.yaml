@@ -3,5 +3,8 @@ installCRDs: true
 webhook:
   create: false
 
+certController:
+  create: false
+
 secretStores:
   enabled: false
