@@ -2,7 +2,7 @@ configuration:
   backupStorageLocation:
     - name: default
       provider: aws
-      bucket: charlie-dev12212025
+      bucket: charlie-velero-backups
       default: true
       accessMode: ReadWrite
       config:
