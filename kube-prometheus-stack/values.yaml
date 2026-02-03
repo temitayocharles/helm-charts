@@ -22,6 +22,7 @@ alertmanager:
 prometheus:
   prometheusSpec:
     retention: 15d
+    retentionSize: "5GB"
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -30,31 +31,29 @@ prometheus:
             requests:
               storage: 5Gi
           storageClassName: local-path
-    containers:
-      - name: prometheus
-        livenessProbe:
-          httpGet:
-            path: /-/healthy
-            port: web
-          initialDelaySeconds: 60
-          timeoutSeconds: 30
-          periodSeconds: 10
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /-/ready
-            port: web
-          initialDelaySeconds: 60
-          timeoutSeconds: 30
-          periodSeconds: 10
-          failureThreshold: 3
     resources:
       requests:
         cpu: 250m
         memory: 512Mi
       limits:
         cpu: 1000m
-        memory: 1Gi
+        memory: 1.5Gi
+    livenessProbe:
+      httpGet:
+        path: /-/healthy
+        port: web
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 30
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /-/ready
+        port: web
+      initialDelaySeconds: 60
+      periodSeconds: 5
+      timeoutSeconds: 30
+      failureThreshold: 3
 
 prometheus-operator:
   enabled: true
