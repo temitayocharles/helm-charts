@@ -1,9 +1,12 @@
 configuration:
   backupStorageLocation:
-    provider: aws
-    bucket: charlie-dev12212025
-    config:
-      region: us-east-1
+    - name: default
+      provider: aws
+      bucket: charlie-dev12212025
+      default: true
+      accessMode: ReadWrite
+      config:
+        region: us-east-1
 
   schedules:
     daily:
