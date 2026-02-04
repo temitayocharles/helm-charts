@@ -11,6 +11,11 @@ promtail:
     clients:
       - url: http://loki:3100/loki/api/v1/push
 
+grafana:
+  sidecar:
+    datasources:
+      defaultDatasourceEnabled: false
+
 persistence:
   enabled: true
   size: 5Gi
