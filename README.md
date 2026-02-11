@@ -1,5 +1,9 @@
 # Helm Charts Library
 
+
+## Start Here
+- Read [START_HERE.md](START_HERE.md) for the chronological playbook.
+
 Central Helm chart library for platform tools and shared components.
 
 ## Structure
