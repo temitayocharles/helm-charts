@@ -1,0 +1,130 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/cila-health-monolith
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: monolith.dev.cila.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/ready
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Dual-write sidecar configuration
+dualWrite:
+  enabled: false  # Set to true when ready for dual-write
+  image:
+    repository: cila-health/dual-write-sidecar
+    tag: latest
+  port: 8081
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Database configurations for dual-write sidecar
+databases:
+  monolith:
+    host: "postgres-monolith.databases.svc.cluster.local"
+    port: "5432"
+    database: "cila_health"
+    secretName: "postgres-monolith-secret"
+  device:
+    host: "postgres-device.databases.svc.cluster.local"
+    port: "5432"
+    database: "cila_device"
+    secretName: "postgres-device-secret"
+
+env:
+  - name: APP_ENV
+    value: "production"
+  - name: APP_DEBUG
+    value: "false"
+  - name: DB_CONNECTION
+    value: "pgsql"
+  - name: DB_HOST
+    value: "postgres-monolith.databases.svc.cluster.local"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_DATABASE
+    value: "cila_health"
+  - name: DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_USER
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_PASSWORD
+  - name: CACHE_DRIVER
+    value: "redis"
+  - name: REDIS_HOST
+    value: "redis"
+  # Dual-write environment variables
+  - name: DUAL_WRITE_ENABLED
+    value: "{{ .Values.dualWrite.enabled }}"
+  - name: DEVICE_DB_HOST
+    value: "postgres-device.databases.svc.cluster.local"
+  - name: DEVICE_DB_PORT
+    value: "5432"
+  - name: DEVICE_DB_DATABASE
+    value: "cila_device"
+  - name: DEVICE_DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: postgres-device-secret
+        key: POSTGRES_USER
+  - name: DEVICE_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: postgres-device-secret
+        key: POSTGRES_PASSWORD
+
+# 🔐 External Secrets (ESO + Vault)
+externalSecret:
+  enabled: false
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  targetName: postgres-monolith-secret
+  refreshInterval: 1h
+  data: []
+
+# 🔗 EnvFrom sources
+envFrom: []

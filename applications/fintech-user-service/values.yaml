@@ -1,0 +1,44 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/fintech-user-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 8000
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+env:
+  config:
+    KAFKA_BROKERS: "kafka:9092"
+    KEYCLOAK_URL: "http://keycloak:8080"
+    KEYCLOAK_REALM: "fintech"
+    KEYCLOAK_CLIENT_ID: "fintech-client"
+
+secrets:
+  - envName: DATABASE_URL
+    secretName: user-db-secret
+    secretKey: DATABASE_URL
+  - envName: KEYCLOAK_CLIENT_SECRET
+    secretName: keycloak-client-secret
+    secretKey: CLIENT_SECRET
+externalSecrets:
+  enabled: true
+  storeRef: vault-backend
+  refreshInterval: 1m
+  basePath: fintech/dev/user-service
+

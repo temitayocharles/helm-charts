@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "device-ingestion.fullname" . }}-config
+  labels:
+    app.kubernetes.io/name: {{ include "device-ingestion.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  service.env: |
+{{- range .Values.env }}
+{{- if hasKey . "value" }}
+    {{ .name }}={{ .value }}
+{{- end }}
+{{- end }}

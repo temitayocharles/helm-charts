@@ -1,0 +1,41 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/fintech-analytics-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 8000
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+env:
+  config:
+    KAFKA_BROKERS: "kafka:9092"
+    INFLUX_URL: "http://influxdb:8086"
+    INFLUX_ORG: "fintech"
+    INFLUX_BUCKET: "transactions"
+
+secrets:
+  - envName: INFLUX_TOKEN
+    secretName: influxdb-token
+    secretKey: INFLUX_TOKEN
+externalSecrets:
+  enabled: true
+  storeRef: vault-backend
+  refreshInterval: 1m
+  basePath: fintech/dev/analytics-service
+

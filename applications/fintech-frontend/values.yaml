@@ -1,0 +1,39 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/fintech-frontend
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 3000
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+env:
+  config:
+    REACT_APP_ACCOUNT_API_URL: "http://account-service:8081"
+    REACT_APP_TRANSACTION_API_URL: "http://transaction-service:8082"
+    REACT_APP_AUDIT_API_URL: "http://audit-service:8083"
+    REACT_APP_ANALYTICS_API_URL: "http://analytics-service:8084"
+    REACT_APP_NOTIFICATION_API_URL: "http://notification-service:8085"
+
+secrets: []
+externalSecrets:
+  enabled: true
+  storeRef: vault-backend
+  refreshInterval: 1m
+  basePath: fintech/dev/frontend
+

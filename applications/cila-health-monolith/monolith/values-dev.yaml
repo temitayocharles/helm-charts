@@ -1,0 +1,108 @@
+# Laravel Monolith - Development Configuration
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/cila-health-monolith
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# Ingress
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  hosts:
+    - host: monolith.dev.cila.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/ready
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Application env
+env:
+  - name: APP_ENV
+    value: "development"
+  - name: APP_DEBUG
+    value: "true"
+  - name: APP_URL
+    value: "http://monolith.dev.cila.local"
+  - name: LOG_LEVEL
+    value: "debug"
+  - name: APP_KEY
+    valueFrom:
+      secretKeyRef:
+        name: monolith-app-secret
+        key: APP_KEY
+  - name: DB_CONNECTION
+    value: "pgsql"
+  - name: DB_HOST
+    value: "postgres-monolith.databases.svc.cluster.local"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_DATABASE
+    value: "cila_health"
+  - name: DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_USER
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_PASSWORD
+  - name: CACHE_DRIVER
+    value: "redis"
+  - name: SESSION_DRIVER
+    value: "redis"
+  - name: REDIS_HOST
+    value: "redis-master.databases.svc.cluster.local"
+  - name: REDIS_PORT
+    value: "6379"
+
+# ESO + Vault
+externalSecret:
+  enabled: true
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  targetName: monolith-app-secret
+  refreshInterval: 1h
+  data:
+    - secretKey: APP_KEY
+      remoteKey: kv/monolith-app
+      property: APP_KEY
+
+# EnvFrom sources
+envFrom:
+  - secretRef:
+      name: monolith-app-secret

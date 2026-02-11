@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "monolith.fullname" . }}
+  labels:
+    {{- include "monolith.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "monolith.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "monolith.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: monolith
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+{{- if .Values.envFrom }}
+          envFrom:
+{{ toYaml .Values.envFrom | nindent 12 }}
+{{- end }}
+          env:
+{{- range .Values.env }}
+            - name: {{ .name }}
+{{- if hasKey . "valueFrom" }}
+              valueFrom:
+{{ toYaml .valueFrom | nindent 16 }}
+{{- else }}
+              value: "{{ .value }}"
+{{- end }}
+{{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+{{- if .Values.dualWrite.enabled }}
+        - name: dual-write-sidecar
+          image: "{{ .Values.dualWrite.image.repository }}:{{ .Values.dualWrite.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.dualWrite.port }}
+              name: dual-write
+          env:
+            - name: MONOLITH_DB_HOST
+              value: "{{ .Values.databases.monolith.host }}"
+            - name: MONOLITH_DB_PORT
+              value: "{{ .Values.databases.monolith.port }}"
+            - name: MONOLITH_DB_DATABASE
+              value: "{{ .Values.databases.monolith.database }}"
+            - name: MONOLITH_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.databases.monolith.secretName }}
+                  key: POSTGRES_USER
+            - name: MONOLITH_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.databases.monolith.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: DEVICE_DB_HOST
+              value: "{{ .Values.databases.device.host }}"
+            - name: DEVICE_DB_PORT
+              value: "{{ .Values.databases.device.port }}"
+            - name: DEVICE_DB_DATABASE
+              value: "{{ .Values.databases.device.database }}"
+            - name: DEVICE_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.databases.device.secretName }}
+                  key: POSTGRES_USER
+            - name: DEVICE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.databases.device.secretName }}
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_URL
+              value: "redis://redis:6379"
+          resources:
+            {{- toYaml .Values.dualWrite.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.dualWrite.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.dualWrite.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+{{- end }}

@@ -1,0 +1,30 @@
+# Laravel Monolith - Helm Chart Metadata
+
+apiVersion: v2
+name: monolith
+description: Laravel Monolith Application for Cila Health
+type: application
+
+version: 1.0.0
+appVersion: "1.0"
+
+maintainers:
+  - name: Platform Team
+    email: platform@cila.health
+  - name: Backend Team
+    email: backend@cila.health
+
+dependencies:
+  - name: postgresql
+    version: "~12.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "~17.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+
+annotations:
+  category: Healthcare
+  vendor: Cila Health
+  description: "Legacy Laravel monolith being migrated to microservices"

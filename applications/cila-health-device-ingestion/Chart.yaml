@@ -1,0 +1,32 @@
+apiVersion: v2
+name: device-ingestion
+description: Device Ingestion Microservice for Cila Health
+type: application
+
+# 📦 Versioning
+version: 0.1.0
+appVersion: "1.0"
+
+# 👥 Maintainers
+maintainers:
+  - name: Platform Team
+    email: platform@cila.health
+  - name: Development Team
+    email: dev@cila.health
+
+# 🔗 Dependencies
+dependencies:
+  - name: postgresql
+    version: "~12.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "~17.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+
+# 📝 Annotations
+annotations:
+  category: Healthcare
+  vendor: Cila Health
+  description: "Ingests and processes healthcare device telemetry data"

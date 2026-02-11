@@ -1,0 +1,103 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temitayocharles/cila-health-device-ingestion
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  hosts:
+    - host: device-ingestion.dev.cila.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# 🗄️ Database Configuration
+database:
+  # Platform: These values come from Kubernetes Secrets
+  host: "postgres-cila-postgresql.databases"
+  port: 5432
+  name: "cila_device"
+  # Username and password injected via envFrom: secretRef
+  sslMode: require
+
+# 📊 Resources
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# 🏥 Health Checks
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+
+# 🌡️ Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# 🔧 Environment Variables
+env:
+  - name: POSTGRES_SERVER
+    value: "postgres-cila-postgresql.databases"
+  - name: POSTGRES_PORT
+    value: "5432"
+  - name: POSTGRES_DB
+    value: "cila_device"
+  - name: REDIS_HOST
+    value: "redis-master.databases"
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_DB
+    value: "0"
+
+# 🔐 External Secrets (ESO + Vault)
+externalSecret:
+  enabled: false
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  targetName: device-ingestion-secrets
+  refreshInterval: 1h
+  data: []
+
+# 🔗 EnvFrom sources (e.g., ESO-generated Secret)
+envFrom: []
+
+# 🎛️ Feature Flags
+featureFlags:
+  strangler:
+    enabled: false
+    trafficPercentage: 0  # 0-100
+    dualWrite: false      # Write to both monolith and microservice DBs

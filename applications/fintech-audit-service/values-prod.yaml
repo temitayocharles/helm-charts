@@ -1,0 +1,13 @@
+image:
+  tag: f3a9db1f96919632248a4e4a6931110cb35da848
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/prod/audit-service

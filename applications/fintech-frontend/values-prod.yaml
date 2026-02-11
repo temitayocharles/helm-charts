@@ -1,0 +1,13 @@
+image:
+  tag: 95d89af29a29f1a8fe1677bca9110f4a666a19df
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/prod/frontend

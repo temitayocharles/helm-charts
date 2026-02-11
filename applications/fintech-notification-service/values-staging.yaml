@@ -1,0 +1,13 @@
+image:
+  tag: 6cac310052f5f9e999519579815988df7533a6f1
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/staging/notification-service

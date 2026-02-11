@@ -1,0 +1,58 @@
+# Laravel Monolith - Default Configuration
+
+replicaCount: 2
+
+image:
+  repository: cila-health/monolith
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  hosts:
+    - host: monolith.dev.cila.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+database:
+  host: "postgres-cila-postgresql.databases.svc.cluster.local"
+  port: 5432
+  name: "cila_monolith"
+  sslMode: prefer
+
+redis:
+  enabled: true
+  host: "redis-master.platform.svc.cluster.local"
+  port: 6379
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+# Monolith-specific: PHP configuration
+php:
+  memoryLimit: "256M"
+  maxExecutionTime: 300
+  uploadMaxFilesize: "100M"
+
+# Feature flags for Strangler Fig
+features:
+  deviceIngestion:
+    enabled: false  # When true, redirects device API calls to microservice
+    microserviceUrl: "http://device-ingestion.apps.svc.cluster.local:8000"

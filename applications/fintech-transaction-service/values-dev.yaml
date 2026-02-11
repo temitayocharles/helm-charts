@@ -1,0 +1,13 @@
+image:
+  tag: 7e07f2ca07775546f4788dcd7f3b0b6ea6e67505
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/dev/transaction-service

@@ -1,0 +1,116 @@
+# Laravel Monolith - Production Configuration
+
+replicaCount: 4
+
+image:
+  repository: ghcr.io/temitayocharles/cila-health-monolith
+  tag: stable
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
+
+# Ingress
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: monolith.cila.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - monolith.cila.local
+      secretName: monolith-prod-tls
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/ready
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "1000m"
+  limits:
+    memory: "2Gi"
+    cpu: "2000m"
+
+# Application env
+env:
+  - name: APP_ENV
+    value: "production"
+  - name: APP_DEBUG
+    value: "false"
+  - name: APP_URL
+    value: "http://monolith.cila.local"
+  - name: LOG_LEVEL
+    value: "WARNING"
+  - name: APP_KEY
+    valueFrom:
+      secretKeyRef:
+        name: monolith-app-secret
+        key: APP_KEY
+  - name: DB_CONNECTION
+    value: "pgsql"
+  - name: DB_HOST
+    value: "postgres-monolith.databases.svc.cluster.local"
+  - name: DB_PORT
+    value: "5432"
+  - name: DB_DATABASE
+    value: "cila_health"
+  - name: DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_USER
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: postgres-monolith-secret
+        key: POSTGRES_PASSWORD
+  - name: CACHE_DRIVER
+    value: "redis"
+  - name: SESSION_DRIVER
+    value: "redis"
+  - name: REDIS_HOST
+    value: "redis-master.databases.svc.cluster.local"
+  - name: REDIS_PORT
+    value: "6379"
+
+# ESO + Vault
+externalSecret:
+  enabled: true
+  secretStoreRef:
+    name: vault-backend
+    kind: ClusterSecretStore
+  targetName: monolith-app-secret
+  refreshInterval: 1h
+  data:
+    - secretKey: APP_KEY
+      remoteKey: kv/monolith-app
+      property: APP_KEY
+
+# EnvFrom sources
+envFrom:
+  - secretRef:
+      name: monolith-app-secret

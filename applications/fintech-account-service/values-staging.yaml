@@ -1,0 +1,13 @@
+image:
+  tag: 0e6adc0a2e2a2c17d943e60d33952ddf89a13c33
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/staging/account-service

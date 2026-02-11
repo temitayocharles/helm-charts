@@ -1,0 +1,13 @@
+image:
+  tag: e7383bc28e2dd8739f15a745c91dda7d58c47870
+
+replicaCount: 2
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+externalSecrets:
+  basePath: fintech/dev/analytics-service
