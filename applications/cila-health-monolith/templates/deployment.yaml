@@ -27,4 +27,4 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: APP_ENV
-              value: "{{ ternary \"dual-write\" \"monolith\" .Values.features.deviceIngestion.enabled }}"
+              value: '{{ ternary "dual-write" "monolith" .Values.features.deviceIngestion.enabled }}'
