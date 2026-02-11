@@ -14,6 +14,10 @@ spec:
       labels:
         app: {{ include "fintech.fullname" . }}
     spec:
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{- toYaml . | nindent 8 }}
+{{- end }}
       containers:
         - name: {{ include "fintech.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

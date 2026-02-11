@@ -17,6 +17,10 @@ spec:
         app.kubernetes.io/name: {{ include "device-ingestion.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{- toYaml . | nindent 8 }}
+{{- end }}
       containers:
         - name: device-ingestion
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

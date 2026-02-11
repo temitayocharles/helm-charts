@@ -1,3 +1,4 @@
+imagePullSecrets: []
 postgres:
   image: postgres:15
   db: userdb
