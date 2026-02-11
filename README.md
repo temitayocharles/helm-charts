@@ -3,8 +3,14 @@
 Central Helm chart library for platform tools and shared components.
 
 ## Structure
-- Each folder is a chart (tools or shared components).
-- Values overrides live in the GitOps repo and are applied by ArgoCD.
+```
+helm-charts/
+  platform-tools/   # Tooling charts (Argo, ESO, Prometheus, etc.)
+  applications/     # App charts (per app or per service)
+  shared/           # Shared helper charts (optional)
+```
+
+Values overrides live in `platform-gitops` and are applied by ArgoCD.
 
 ## Dependency Graph
 ```
