@@ -31,7 +31,11 @@ database:
   host: "postgres-cila-postgresql.databases.svc.cluster.local"
   port: 5432
   name: "cila_monolith"
+  user: "cila"
+  password: "cila-pass"
   sslMode: prefer
+
+appKey: "base64:ZGV2LW1vbm9saXRoLWtleS0xMjM0NTY3ODkwMTIzNDU2Nzg5MA=="
 
 redis:
   enabled: true

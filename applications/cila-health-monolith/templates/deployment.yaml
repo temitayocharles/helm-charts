@@ -32,3 +32,21 @@ spec:
           env:
             - name: APP_ENV
               value: '{{ ternary "dual-write" "monolith" .Values.features.deviceIngestion.enabled }}'
+            - name: APP_KEY
+              value: {{ .Values.appKey | quote }}
+            - name: DB_CONNECTION
+              value: "pgsql"
+            - name: DB_HOST
+              value: {{ .Values.database.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: DB_DATABASE
+              value: {{ .Values.database.name | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.user | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.database.password | quote }}
+            - name: REDIS_HOST
+              value: {{ .Values.redis.host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
