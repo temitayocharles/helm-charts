@@ -31,7 +31,7 @@ spec:
       containers:
         - name: minio
           image: {{ .Values.image.minio }}
-          args: [server, /data, --console-address, :9001]
+          args: ["server", "/data", "--console-address", ":9001"]
           env:
             - name: MINIO_ACCESS_KEY
               value: {{ .Values.config.media.minioAccessKey | quote }}
