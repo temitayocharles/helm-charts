@@ -40,6 +40,11 @@ config:
     minioAccessKey: minio_access_key
     minioSecretKey: minio_secret_key
 
+ingress:
+  enabled: true
+  host: virtual-vacation.local
+  entrypoints: web
+
 service:
   backend:
     type: ClusterIP
