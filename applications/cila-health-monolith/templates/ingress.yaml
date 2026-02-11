@@ -30,7 +30,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "monolith.fullname" $. }}
+                name: {{ include "monolith.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}
