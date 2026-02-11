@@ -3,6 +3,7 @@ configuration:
     - name: default
       provider: aws
       bucket: charlie-dev12212025
+      prefix: velero
       default: true
       accessMode: ReadWrite
       config:
