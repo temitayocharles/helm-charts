@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-vacation-postgres
+spec:
+  type: {{ .Values.service.postgres.type }}
+  ports:
+    - port: {{ .Values.service.postgres.port }}
+      targetPort: 5432
+      name: postgres
+  selector:
+    app: virtual-vacation-postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-vacation-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-vacation-postgres
+  template:
+    metadata:
+      labels:
+        app: virtual-vacation-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.image.postgres }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.config.postgres.db | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.config.postgres.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.config.postgres.password | quote }}
+          ports:
+            - containerPort: 5432
+          resources: {{- toYaml .Values.resources.tiny | nindent 12 }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: virtual-vacation-postgres
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: virtual-vacation-postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size.postgres }}
+{{- end }}

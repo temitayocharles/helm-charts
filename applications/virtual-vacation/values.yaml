@@ -1,0 +1,65 @@
+namespace: apps
+
+image:
+  backend: ghcr.io/temitayocharles/virtual-vacation-backend:latest
+  frontend: ghcr.io/temitayocharles/virtual-vacation-frontend:latest
+  mediaGateway: ghcr.io/temitayocharles/virtual-vacation-media-gateway:latest
+  postgres: postgres:15-alpine
+  redis: redis:7-alpine
+  mongo: mongo:7-jammy
+  minio: minio/minio:latest
+
+resources:
+  tiny:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+persistence:
+  enabled: true
+  size:
+    postgres: 2Gi
+    redis: 1Gi
+    mongo: 2Gi
+    minio: 5Gi
+
+config:
+  postgres:
+    db: virtual_vacation
+    user: vacation_user
+    password: vacation_password
+  redis:
+    db: 0
+  backend:
+    nodeEnv: development
+  media:
+    mongoDb: media_db
+    minioAccessKey: minio_access_key
+    minioSecretKey: minio_secret_key
+
+service:
+  backend:
+    type: ClusterIP
+    port: 8080
+  frontend:
+    type: ClusterIP
+    port: 80
+  mediaGateway:
+    type: ClusterIP
+    port: 8000
+  postgres:
+    type: ClusterIP
+    port: 5432
+  redis:
+    type: ClusterIP
+    port: 6379
+  mongo:
+    type: ClusterIP
+    port: 27017
+  minio:
+    type: ClusterIP
+    port: 9000
+    consolePort: 9001

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-vacation-backend
+spec:
+  type: {{ .Values.service.backend.type }}
+  ports:
+    - port: {{ .Values.service.backend.port }}
+      targetPort: 8080
+      name: http
+  selector:
+    app: virtual-vacation-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-vacation-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-vacation-backend
+  template:
+    metadata:
+      labels:
+        app: virtual-vacation-backend
+    spec:
+      containers:
+        - name: backend
+          image: {{ .Values.image.backend }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.config.backend.nodeEnv | quote }}
+            - name: PORT
+              value: "8080"
+            - name: DATABASE_URL
+              value: "postgresql://{{ .Values.config.postgres.user }}:{{ .Values.config.postgres.password }}@virtual-vacation-postgres:5432/{{ .Values.config.postgres.db }}?sslmode=disable"
+            - name: REDIS_URL
+              value: "redis://virtual-vacation-redis:6379/{{ .Values.config.redis.db }}"
+          ports:
+            - containerPort: 8080
+          resources: {{- toYaml .Values.resources.tiny | nindent 12 }}

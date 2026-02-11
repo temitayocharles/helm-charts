@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-vacation-frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  ports:
+    - port: {{ .Values.service.frontend.port }}
+      targetPort: 80
+      name: http
+  selector:
+    app: virtual-vacation-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-vacation-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-vacation-frontend
+  template:
+    metadata:
+      labels:
+        app: virtual-vacation-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: {{ .Values.image.frontend }}
+          env:
+            - name: VITE_API_BASE_URL
+              value: "http://virtual-vacation-backend:8080"
+          ports:
+            - containerPort: 80
+          resources: {{- toYaml .Values.resources.tiny | nindent 12 }}

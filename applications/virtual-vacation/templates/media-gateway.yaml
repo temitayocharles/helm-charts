@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: virtual-vacation-media-gateway
+spec:
+  type: {{ .Values.service.mediaGateway.type }}
+  ports:
+    - port: {{ .Values.service.mediaGateway.port }}
+      targetPort: 8000
+      name: http
+  selector:
+    app: virtual-vacation-media-gateway
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtual-vacation-media-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtual-vacation-media-gateway
+  template:
+    metadata:
+      labels:
+        app: virtual-vacation-media-gateway
+    spec:
+      containers:
+        - name: media-gateway
+          image: {{ .Values.image.mediaGateway }}
+          env:
+            - name: REDIS_URL
+              value: "redis://virtual-vacation-redis:6379"
+            - name: MONGODB_URL
+              value: "mongodb://virtual-vacation-mongo:27017/{{ .Values.config.media.mongoDb }}"
+            - name: MINIO_ENDPOINT
+              value: "virtual-vacation-minio:9000"
+            - name: MINIO_ACCESS_KEY
+              value: {{ .Values.config.media.minioAccessKey | quote }}
+            - name: MINIO_SECRET_KEY
+              value: {{ .Values.config.media.minioSecretKey | quote }}
+          ports:
+            - containerPort: 8000
+          resources: {{- toYaml .Values.resources.tiny | nindent 12 }}
