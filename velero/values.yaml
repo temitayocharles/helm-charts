@@ -2,7 +2,7 @@ configuration:
   backupStorageLocation:
     - name: default
       provider: aws
-      bucket: charlie-velero-backups
+      bucket: charlie-dev12212025
       default: true
       accessMode: ReadWrite
       config:
@@ -18,6 +18,18 @@ configuration:
         ttl: 720h
         includedNamespaces:
         - '*'
+
+credentials:
+  existingSecret: velero-aws-credentials
+  useSecret: true
+
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.9.1
+    imagePullPolicy: IfNotPresent
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
 
 replicaCount: 1
 
