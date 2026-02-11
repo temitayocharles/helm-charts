@@ -28,7 +28,7 @@ ingress:
   tls: []
 
 database:
-  host: "postgres-cila-postgresql.databases.svc.cluster.local"
+  host: "cila-health-monolith-postgresql"
   port: 5432
   name: "cila_monolith"
   user: "cila"
@@ -39,8 +39,24 @@ appKey: "base64:ZGV2LW1vbm9saXRoLWtleS0xMjM0NTY3ODkwMTIzNDU2Nzg5MA=="
 
 redis:
   enabled: true
-  host: "redis-master.platform.svc.cluster.local"
+  host: "cila-health-monolith-redis-master"
   port: 6379
+  image:
+    repository: bitnami/redis
+    tag: latest
+  auth:
+    enabled: false
+
+postgresql:
+  enabled: true
+  image:
+    repository: bitnami/postgresql
+    tag: latest
+  auth:
+    username: cila
+    password: cila-pass
+    database: cila_monolith
+    postgresPassword: cila-postgres-pass
 
 resources:
   requests:
