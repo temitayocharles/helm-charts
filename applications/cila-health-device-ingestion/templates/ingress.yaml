@@ -30,7 +30,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "device-ingestion.fullname" $. }}
+                name: {{ include "device-ingestion.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}
