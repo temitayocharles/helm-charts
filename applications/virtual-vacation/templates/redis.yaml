@@ -28,7 +28,7 @@ spec:
       containers:
         - name: redis
           image: {{ .Values.image.redis }}
-          args: [--appendonly, yes]
+          args: ["--appendonly", "yes"]
           ports:
             - containerPort: 6379
           resources: {{- toYaml .Values.resources.tiny | nindent 12 }}
