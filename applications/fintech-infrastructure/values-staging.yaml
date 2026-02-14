@@ -1,0 +1,20 @@
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "250m"
+
+externalSecrets:
+  enabled: true
+  storeRef: vault-fintech-infrastructure-postgres
+  refreshInterval: 1m
+  basePath: temitayo/staging/fintech-infrastructure/postgres
+
+postgres:
+  passwordSecretName: postgres-credentials
+  passwordSecretKey: POSTGRES_PASSWORD
+
