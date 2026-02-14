@@ -1,7 +1,7 @@
 image:
   tag: 95d89af29a29f1a8fe1677bca9110f4a666a19df
 
-replicaCount: 2
+replicaCount: 1
 resources:
   requests:
     memory: "128Mi"
@@ -10,4 +10,5 @@ resources:
     memory: "256Mi"
     cpu: "200m"
 externalSecrets:
-  basePath: fintech/staging/frontend
+  storeRef: vault-fintech-frontend-web
+  basePath: temitayo/staging/fintech-frontend/web

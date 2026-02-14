@@ -1,7 +1,7 @@
 image:
   tag: 6cac310052f5f9e999519579815988df7533a6f1
 
-replicaCount: 2
+replicaCount: 1
 resources:
   requests:
     memory: "128Mi"
@@ -10,4 +10,5 @@ resources:
     memory: "256Mi"
     cpu: "200m"
 externalSecrets:
-  basePath: fintech/staging/notification-service
+  storeRef: vault-fintech-notification-service-api
+  basePath: temitayo/staging/fintech-notification-service/api

@@ -1,7 +1,7 @@
 image:
   tag: 7e07f2ca07775546f4788dcd7f3b0b6ea6e67505
 
-replicaCount: 2
+replicaCount: 1
 resources:
   requests:
     memory: "128Mi"
@@ -10,4 +10,5 @@ resources:
     memory: "256Mi"
     cpu: "200m"
 externalSecrets:
-  basePath: fintech/staging/transaction-service
+  storeRef: vault-fintech-transaction-service-api
+  basePath: temitayo/staging/fintech-transaction-service/api
