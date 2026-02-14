@@ -21,6 +21,10 @@ spec:
         sidecar.istio.io/inject: "false"
     spec:
       restartPolicy: Never
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | nindent 8 }}
+{{- end }}
       containers:
       - name: migration
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
