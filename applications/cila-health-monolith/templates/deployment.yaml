@@ -54,6 +54,8 @@ spec:
               value: {{ .Values.features.deviceIngestion.enabled | quote }}
             - name: DEVICE_INGESTION_URL
               value: {{ .Values.features.deviceIngestion.microserviceUrl | quote }}
+            - name: TELEMETRY_AUTH_BYPASS
+              value: {{ .Values.features.telemetry.authBypass | quote }}
             - name: APP_KEY
               value: {{ .Values.appKey | quote }}
             - name: DB_CONNECTION
@@ -88,6 +90,8 @@ spec:
               value: {{ .Values.features.deviceIngestion.enabled | quote }}
             - name: DEVICE_INGESTION_URL
               value: {{ .Values.features.deviceIngestion.microserviceUrl | quote }}
+            - name: TELEMETRY_AUTH_BYPASS
+              value: {{ .Values.features.telemetry.authBypass | quote }}
             - name: APP_KEY
               value: {{ .Values.appKey | quote }}
             - name: DB_CONNECTION

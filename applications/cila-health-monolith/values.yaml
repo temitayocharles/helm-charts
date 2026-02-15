@@ -81,3 +81,5 @@ features:
   deviceIngestion:
     enabled: false  # When true, redirects device API calls to microservice
     microserviceUrl: "http://device-ingestion.apps.svc.cluster.local:8000"
+  telemetry:
+    authBypass: false
