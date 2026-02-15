@@ -6,11 +6,11 @@ This repo **stores charts only**. Values and Argo Applications live in `platform
 
 ## Prereqs (Cross-Repo)
 - Vault access boundaries and ESO stores exist:
-  - Repo: `temitayocharles/vault-ops`
+  - Repo: [`temitayocharles/vault-ops`](https://github.com/temitayocharles/vault-ops)
 - Non‑secret config exists and ConfigMaps are generated:
-  - Repo: `temitayocharles/configurations`
+  - Repo: [`temitayocharles/configurations`](https://github.com/temitayocharles/configurations)
 - Argo Application and environment values exist:
-  - Repo: `temitayocharles/platform-gitops`
+  - Repo: [`temitayocharles/platform-gitops`](https://github.com/temitayocharles/platform-gitops)
 
 ## 1) Create the chart (from template)
 ```bash
@@ -49,4 +49,3 @@ git push origin main
 Create the matching Argo Application and environment values in `platform-gitops`.
 Start here:
 - `platform-gitops/docs/DEPLOY_APP.md`
-
