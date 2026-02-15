@@ -26,6 +26,9 @@ spec:
         - name: migrate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsUser: 33
+            runAsGroup: 33
           command:
             - sh
             - -lc
@@ -33,6 +36,9 @@ spec:
               set -e
               # Retry to tolerate first-boot DB readiness.
               for i in $(seq 1 30); do
+                php artisan config:clear || true
+                php artisan cache:clear || true
+                php artisan config:cache
                 php artisan migrate --force && exit 0
                 echo "migrate attempt ${i} failed; retrying..."
                 sleep 2
