@@ -26,14 +26,14 @@ spec:
         - name: migrate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          securityContext:
-            runAsUser: 33
-            runAsGroup: 33
           command:
             - sh
             - -lc
             - |
               set -e
+              # Ensure cache/log dirs are writable during bootstrap.
+              mkdir -p /var/www/html/storage/logs /var/www/html/bootstrap/cache
+              chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
               # Retry to tolerate first-boot DB readiness.
               for i in $(seq 1 30); do
                 php artisan config:clear || true
