@@ -21,6 +21,50 @@ spec:
       imagePullSecrets:
 {{- toYaml . | nindent 8 }}
 {{- end }}
+{{- if .Values.migrations.enabled }}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -lc
+            - |
+              set -e
+              # Retry to tolerate first-boot DB readiness.
+              for i in $(seq 1 30); do
+                php artisan migrate --force && exit 0
+                echo "migrate attempt ${i} failed; retrying..."
+                sleep 2
+              done
+              echo "migrations failed after retries"
+              exit 1
+          env:
+            - name: APP_ENV
+              value: '{{ ternary "dual-write" "monolith" .Values.features.deviceIngestion.enabled }}'
+            - name: DEVICE_INGESTION_ENABLED
+              value: {{ .Values.features.deviceIngestion.enabled | quote }}
+            - name: DEVICE_INGESTION_URL
+              value: {{ .Values.features.deviceIngestion.microserviceUrl | quote }}
+            - name: APP_KEY
+              value: {{ .Values.appKey | quote }}
+            - name: DB_CONNECTION
+              value: "pgsql"
+            - name: DB_HOST
+              value: {{ .Values.database.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: DB_DATABASE
+              value: {{ .Values.database.name | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.user | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.database.password | quote }}
+            - name: REDIS_HOST
+              value: {{ .Values.redis.host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+{{- end }}
       containers:
         - name: monolith
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

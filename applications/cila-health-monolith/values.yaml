@@ -66,6 +66,10 @@ resources:
     memory: "1Gi"
     cpu: "1000m"
 
+# Run Laravel migrations at pod start (safe for single replica + dev clusters).
+migrations:
+  enabled: false
+
 # Monolith-specific: PHP configuration
 php:
   memoryLimit: "256M"
