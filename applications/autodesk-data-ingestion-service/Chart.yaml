@@ -1,0 +1,7 @@
+apiVersion: v2
+name: autodesk-data-ingestion-service
+description: Helm chart for autodesk-project (data-ingestion-service)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
