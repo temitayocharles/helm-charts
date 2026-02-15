@@ -8,9 +8,11 @@ Central Helm chart repository. Each app has its own chart under `applications/<a
 ## 2. Repo Map (What Lives Where)
 - Charts: [applications](applications)
 - Shared templates/helpers: [shared](shared)
+- New chart playbook: [docs/NEW_SERVICE.md](docs/NEW_SERVICE.md)
+- Chart template: [applications/_templates/microservice](applications/_templates/microservice)
 
 ## 3. Add a New Chart
-1. Create a new chart folder under `applications/<app>`.
+1. Create a new chart folder under `applications/<app>` (recommended: use the template).
 1. Add `Chart.yaml`, `values.yaml`, and templates.
 1. Keep defaults minimal and safe.
 

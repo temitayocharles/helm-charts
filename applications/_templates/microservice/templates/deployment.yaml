@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "microservice.fullname" . }}
+  labels:
+    app: {{ include "microservice.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "microservice.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "microservice.fullname" . }}
+    spec:
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{- toYaml . | nindent 8 }}
+{{- end }}
+      containers:
+        - name: {{ include "microservice.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "microservice.fullname" . }}-config
+{{- if .Values.secrets }}
+          env:
+{{- range .Values.secrets }}
+            - name: {{ .envName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .secretKey }}
+{{- end }}
+{{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
