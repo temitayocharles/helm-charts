@@ -32,6 +32,10 @@ spec:
           env:
             - name: APP_ENV
               value: '{{ ternary "dual-write" "monolith" .Values.features.deviceIngestion.enabled }}'
+            - name: DEVICE_INGESTION_ENABLED
+              value: {{ .Values.features.deviceIngestion.enabled | quote }}
+            - name: DEVICE_INGESTION_URL
+              value: {{ .Values.features.deviceIngestion.microserviceUrl | quote }}
             - name: APP_KEY
               value: {{ .Values.appKey | quote }}
             - name: DB_CONNECTION
