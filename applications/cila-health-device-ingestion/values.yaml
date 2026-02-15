@@ -1,5 +1,8 @@
 replicaCount: 2
 
+migrations:
+  enabled: true
+
 image:
   repository: ghcr.io/temitayocharles/cila-health-device-ingestion
   tag: latest

@@ -21,6 +21,34 @@ spec:
       imagePullSecrets:
 {{- toYaml . | nindent 8 }}
 {{- end }}
+{{- if .Values.migrations.enabled }}
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["alembic","upgrade","head"]
+{{- if .Values.envFrom }}
+          envFrom:
+{{ toYaml .Values.envFrom | nindent 12 }}
+{{- end }}
+          env:
+{{- range .Values.env }}
+            - name: {{ .name }}
+{{- if hasKey . "valueFrom" }}
+              valueFrom:
+{{ toYaml .valueFrom | nindent 16 }}
+{{- else }}
+              value: "{{ .value }}"
+{{- end }}
+{{- end }}
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+{{- end }}
       containers:
         - name: device-ingestion
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
